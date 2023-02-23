@@ -536,4 +536,5 @@ void CHESS_MovePiece()
             // TOOLS_Render_Image_From_Texture(rend, tex, &CHESS_MoveIcon, possible_moves.moves[i].x*75,possible_moves.moves[i].y*75, 75, 75);
         }
     }
+    free(possible_moves.moves);
 }
