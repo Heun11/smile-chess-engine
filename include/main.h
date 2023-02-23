@@ -5,6 +5,7 @@
 #include"sdl.h"
 #include"stdio.h"
 #include"stdlib.h"
+#include <ctype.h>
 #include"math.h"
 
 extern SDL_Renderer* rend;

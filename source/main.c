@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 	SCREEN_HEIGHT = DM.h;
 	SCREEN_WIDTH = 800;
 	SCREEN_HEIGHT = 600;
-	SDL_Window* win = SDL_CreateWindow("Smile", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+	SDL_Window* win = SDL_CreateWindow(":)", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 	if(!win){
 		SDL_Quit();
 		return 1;
