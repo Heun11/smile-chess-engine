@@ -248,7 +248,7 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
     // rook movement
     if(abs(piece)==2){
         int i = y-1;
-        while(board[i*8+x]==0){
+        while(board[i*8+x]==0 && i>=0){
             possible_moves.len++;
             possible_moves.moves[possible_moves.len-1].x = x;
             possible_moves.moves[possible_moves.len-1].y = i;
@@ -260,7 +260,7 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
             possible_moves.moves[possible_moves.len-1].y = i;
         }
         i = y+1;
-        while(board[i*8+x]==0){
+        while(board[i*8+x]==0 && i<=7){
             possible_moves.len++;
             possible_moves.moves[possible_moves.len-1].x = x;
             possible_moves.moves[possible_moves.len-1].y = i;
@@ -376,7 +376,7 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
     // queen movement
     if(abs(piece)==5){
         int i = y-1;
-        while(board[i*8+x]==0){
+        while(board[i*8+x]==0 && i>=0){
             possible_moves.len++;
             possible_moves.moves[possible_moves.len-1].x = x;
             possible_moves.moves[possible_moves.len-1].y = i;
@@ -388,7 +388,7 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
             possible_moves.moves[possible_moves.len-1].y = i;
         }
         i = y+1;
-        while(board[i*8+x]==0){
+        while(board[i*8+x]==0 && i<=7){
             possible_moves.len++;
             possible_moves.moves[possible_moves.len-1].x = x;
             possible_moves.moves[possible_moves.len-1].y = i;
