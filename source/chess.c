@@ -93,7 +93,8 @@ void CHESS_DrawBoardAndPieces()
     for(int i=0;i<64;i++){
         // drawing board
         if((((i+(i/8))%2))==0){
-            SDL_SetRenderDrawColor(rend, 231, 232, 179, 255);
+            // SDL_SetRenderDrawColor(rend, 231, 232, 179, 255);
+            SDL_SetRenderDrawColor(rend, 247, 243, 220, 255);
         }else{
             SDL_SetRenderDrawColor(rend, 51, 107, 163, 255);
         }
@@ -111,6 +112,16 @@ void CHESS_DrawBoardAndPieces()
             TOOLS_Render_Image_From_Texture(rend, tex, &CHESS_BlackPiece[abs(board[i])], (i%8)*75, (i/8)*75, 75, 75);
         }
     }
+}
+
+int CHESS_FindKing(int c)
+{
+    for(int i=0;i<64;i++){
+        if(board[i]==(6*c)){
+            return i;
+        }
+    }
+    return -1;
 }
 
 int CHESS_IsCheck(int i)
@@ -220,6 +231,9 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
     int c = piece/abs(piece);
     int x = i%8;
     int y = i/8;
+    // int king_pos = CHESS_FindKing(c);
+    // int previous_piece = 0;
+    // int r=1, l=1, u=1, d=1;
 
     // pawn movement
     if(abs(piece)==1){
@@ -485,7 +499,21 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
 
     // king movement
     if(abs(piece)==6){
-        printf("%d\n", CHESS_IsCheck(y*8+x));
+        for(int i=-1;i<=1;i++){
+            for(int j=-1;j<=1;j++){
+                if(i==0 && j==0){
+                    continue;
+                }
+                else{
+                    if(CHESS_IsCheck((y+i)*8+(x+j))==0 && (board[(y+i)*8+(x+j)]==0 || ((board[(y+i)*8+(x+j)]<0 && c>0) || (board[(y+i)*8+(x+j)]>0 && c<0)))
+                    && (y+i)<=7 && (y+i)>=0 && (x+j)>=0 && (x+j)<=7){
+                        possible_moves.len++;
+                        possible_moves.moves[possible_moves.len-1].x = x+j;
+                        possible_moves.moves[possible_moves.len-1].y = y+i;
+                    }
+                }
+            }
+        }
     }
 
     return possible_moves;
