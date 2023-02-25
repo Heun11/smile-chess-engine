@@ -124,18 +124,18 @@ int CHESS_FindKing(int c)
     return -1;
 }
 
-int CHESS_IsCheck(int i)
+int CHESS_IsCheck(int i, int c)
 {
-    int piece = board[i];
-    int c = piece/abs(piece);
     int x = i%8;
     int y = i/8;
     int r=1, l=1, u=1, d=1;
+    // printf("king pos: %d\n",i);
 
     // horizontal and vertical check
     for(int i=1;i<8;i++){
         if((y+i)<8 && board[(y+i)*8+(x)]!=0 && d){
             if(board[(y+i)*8+(x)]==(-1*c)*2 || board[(y+i)*8+(x)]==(-1*c)*5){
+                // printf("%d\n", (y+i)*8+(x));
                 return c;
             }
             else{
@@ -144,6 +144,7 @@ int CHESS_IsCheck(int i)
         }
         if((y-i)>=0 && board[(y-i)*8+(x)]!=0 && u){
             if(board[(y-i)*8+(x)]==(-1*c)*2 || board[(y-i)*8+(x)]==(-1*c)*5){
+                // printf("%d\n", (y-i)*8+(x));
                 return c;
             }
             else{
@@ -152,6 +153,7 @@ int CHESS_IsCheck(int i)
         }
         if((x+i)<8 && board[(y)*8+(x+i)]!=0 && r){
             if(board[(y)*8+(x+i)]==(-1*c)*2 || board[(y)*8+(x+i)]==(-1*c)*5){
+                // printf("%d\n", (y)*8+(x+i));
                 return c;
             }
             else{
@@ -160,6 +162,7 @@ int CHESS_IsCheck(int i)
         }
         if((x-i)>=0 && board[(y)*8+(x-i)]!=0 && l){
             if(board[(y)*8+(x-i)]==(-1*c)*2 || board[(y)*8+(x-i)]==(-1*c)*5){
+                // printf("%d\n", (y)*8+(x-i));
                 return c;
             }
             else{
@@ -173,6 +176,7 @@ int CHESS_IsCheck(int i)
     for(int i=1;i<8;i++){
         if((y+i)<8 && (x+i)<8 && board[(y+i)*8+(x+i)]!=0 && d){
             if(board[(y+i)*8+(x+i)]==(-1*c)*4 || board[(y-i)*8+(x-i)]==(-1*c)*5){
+                // printf("%d\n", (y+i)*8+(x+i));
                 return c;
             }
             else{
@@ -181,22 +185,25 @@ int CHESS_IsCheck(int i)
         }
         if((y-i)>=0 && (x-i)>=0 && board[(y-i)*8+(x-i)]!=0 && u){
             if(board[(y-i)*8+(x-i)]==(-1*c)*4 || board[(y-i)*8+(x-i)]==(-1*c)*5){
+                // printf("%d\n", (y-i)*8+(x-i));
                 return c;
             }
             else{
                 u = 0;
             }
         }
-        if((y+i)>=0 && (x-i)>=0 && board[(y+i)*8+(x-i)]!=0 && r){
+        if((y+i)<=7 && (x-i)>=0 && board[(y+i)*8+(x-i)]!=0 && r){
             if(board[(y+i)*8+(x-i)]==(-1*c)*4 || board[(y+i)*8+(x-i)]==(-1*c)*5){
+                // printf("%d\n", (y+i)*8+(x-i));
                 return c;
             }
             else{
                 r = 0;
             }
         }
-        if((y-i)>=0 && (x+i)>=0 && board[(y-i)*8+(x+i)]!=0 && l){
+        if((y-i)>=0 && (x+i)<=7 && board[(y-i)*8+(x+i)]!=0 && l){
             if(board[(y-i)*8+(x+i)]==(-1*c)*4 || board[(y-i)*8+(x+i)]==(-1*c)*5){
+                // printf("%d\n", (y-i)*8+(x+i));
                 return c;
             }
             else{
@@ -210,12 +217,18 @@ int CHESS_IsCheck(int i)
     int f_c[8] = {-1, +1, -2, +2, -2, +2, +1, -1};
     for(int i=0;i<8;i++){
         if(board[(y+r_c[i])*8+(x+f_c[i])]==(-1*c)*3){
+            // printf("%d\n", (y+r_c[i])*8+(x+f_c[i]));
             return c;
         }
     }
 
     // pawn check
-    if(board[(y-c)*8+(x+1)]==(-1*c) || board[(y-c)*8+(x-1)]==(-1*c)){
+    if(board[(y-c)*8+(x+1)]==(-1*c)){
+        // printf("%d\n", (y-c)*8+(x+1));
+        return c;
+    }
+    if(board[(y-c)*8+(x-1)]==(-1*c)){
+        // printf("%d\n", (y-c)*8+(x-1));
         return c;
     }
 
@@ -231,31 +244,59 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
     int c = piece/abs(piece);
     int x = i%8;
     int y = i/8;
-    // int king_pos = CHESS_FindKing(c);
-    // int previous_piece = 0;
+    int king_pos = CHESS_FindKing(c);
+    int previous_piece = 0;
     // int r=1, l=1, u=1, d=1;
 
     // pawn movement
     if(abs(piece)==1){
         if(board[(y-1*c)*8+(x)]==0){
-            possible_moves.len++;
-            possible_moves.moves[possible_moves.len-1].x = x;
-            possible_moves.moves[possible_moves.len-1].y = (y-1*c);
-            if((float)(y)-(2.5f*(float)c)==3.5f && board[(y-2*c)*8+(x)]==0){
+            previous_piece = board[(y-1*c)*8+(x)];
+            board[(y-1*c)*8+(x)] = 1*c;
+            board[y*8+x] = 0;
+            if(CHESS_IsCheck(king_pos, c)!=c){
                 possible_moves.len++;
                 possible_moves.moves[possible_moves.len-1].x = x;
-                possible_moves.moves[possible_moves.len-1].y = (y-2*c);
+                possible_moves.moves[possible_moves.len-1].y = (y-1*c);
+            }
+            board[(y-1*c)*8+(x)] = previous_piece;
+            board[y*8+x] = 1*c;
+            if((float)(y)-(2.5f*(float)c)==3.5f && board[(y-2*c)*8+(x)]==0){
+                previous_piece = board[(y-2*c)*8+(x)];
+                board[(y-2*c)*8+(x)] = 1*c;
+                board[y*8+x] = 0;
+                if(CHESS_IsCheck(king_pos, c)!=c){
+                    possible_moves.len++;
+                    possible_moves.moves[possible_moves.len-1].x = x;
+                    possible_moves.moves[possible_moves.len-1].y = (y-2*c);
+                }
+                board[(y-2*c)*8+(x)] = previous_piece;
+                board[y*8+x] = 1*c;
             }
         }
         if(((board[(y-1*c)*8+(x+1)]>0 && c<0) || (board[(y-1*c)*8+(x+1)]<0 && c>0)) && x+1<=7){
-            possible_moves.len++;
-            possible_moves.moves[possible_moves.len-1].x = x+1;
-            possible_moves.moves[possible_moves.len-1].y = (y-1*c);
+            previous_piece = board[(y-1*c)*8+(x+1)];
+            board[(y-1*c)*8+(x+1)] = 1*c;
+            board[y*8+x] = 0;
+            if(CHESS_IsCheck(king_pos, c)!=c){
+                possible_moves.len++;
+                possible_moves.moves[possible_moves.len-1].x = x+1;
+                possible_moves.moves[possible_moves.len-1].y = (y-1*c);
+            }
+            board[(y-1*c)*8+(x+1)] = previous_piece;
+            board[y*8+x] = 1*c;
         }
         if(((board[(y-1*c)*8+(x-1)]>0 && c<0) || (board[(y-1*c)*8+(x-1)]<0 && c>0)) && x-1>=0){
-            possible_moves.len++;
-            possible_moves.moves[possible_moves.len-1].x = x-1;
-            possible_moves.moves[possible_moves.len-1].y = (y-1*c);
+            previous_piece = board[(y-1*c)*8+(x-1)];
+            board[(y-1*c)*8+(x-1)] = 1*c;
+            board[y*8+x] = 0;
+            if(CHESS_IsCheck(king_pos, c)!=c){
+                possible_moves.len++;
+                possible_moves.moves[possible_moves.len-1].x = x-1;
+                possible_moves.moves[possible_moves.len-1].y = (y-1*c);
+            }
+            board[(y-1*c)*8+(x-1)] = previous_piece;
+            board[y*8+x] = 1*c;
         }
     }
 
@@ -505,8 +546,8 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
                     continue;
                 }
                 else{
-                    if(CHESS_IsCheck((y+i)*8+(x+j))==0 && (board[(y+i)*8+(x+j)]==0 || ((board[(y+i)*8+(x+j)]<0 && c>0) || (board[(y+i)*8+(x+j)]>0 && c<0)))
-                    && (y+i)<=7 && (y+i)>=0 && (x+j)>=0 && (x+j)<=7){
+                    if((board[(y+i)*8+(x+j)]==0 || (board[(y+i)*8+(x+j)]<0 && c>0) || (board[(y+i)*8+(x+j)]>0 && c<0))
+                    && (y+i)<8 && (y+i)>=0 && (x+j)>=0 && (x+j)<8 && CHESS_IsCheck((y+i)*8+(x+j), c)!=c){
                         possible_moves.len++;
                         possible_moves.moves[possible_moves.len-1].x = x+j;
                         possible_moves.moves[possible_moves.len-1].y = y+i;
