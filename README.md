@@ -3,7 +3,6 @@
 - without lib files
 - todo:
     1. Chess:
-        - add promotion
         - add castle
         - add en-passant
     2. Engine
@@ -12,3 +11,4 @@
         - change images 
 
 # :)
+![ScreenShot](resources/smile.png)

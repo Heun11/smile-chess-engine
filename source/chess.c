@@ -9,6 +9,7 @@ char starting_fen[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq";
 int on_turn = 1;
 int turn_count = 0;
 int is_check = 0;
+int promotion_piece = 5;
 
 int CHESS_GetPieceFromFenSymbol(char symbol)
 {
@@ -93,7 +94,6 @@ void CHESS_DrawBoardAndPieces()
     for(int i=0;i<64;i++){
         // drawing board
         if((((i+(i/8))%2))==0){
-            // SDL_SetRenderDrawColor(rend, 231, 232, 179, 255);
             SDL_SetRenderDrawColor(rend, 247, 243, 220, 255);
         }else{
             SDL_SetRenderDrawColor(rend, 51, 107, 163, 255);
@@ -111,6 +111,13 @@ void CHESS_DrawBoardAndPieces()
         else if(board[i]<0){
             TOOLS_Render_Image_From_Texture(rend, tex, &CHESS_BlackPiece[abs(board[i])], (i%8)*75, (i/8)*75, 75, 75);
         }
+    }
+
+    // drawing promotion set menu
+    for(int i=0;i<4;i++){
+        TOOLS_Render_Image_From_Texture(rend, tex, &CHESS_WhitePiece[i+2], SCREEN_WIDTH-75, i*75, 75, 75);
+            SDL_SetRenderDrawColor(rend, 232, 74, 203, 50);
+            SDL_RenderFillRect(rend, &(SDL_Rect){SCREEN_WIDTH-75,(promotion_piece-2)*75,75,75});
     }
 }
 
@@ -300,58 +307,8 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
         }
     }
 
-    // rook movement
+    // rook movement and queen
     if(abs(piece)==2 || abs(piece)==5){
-        // int i = y-1;
-        // while(board[i*8+x]==0 && i>=0){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = x;
-        //     possible_moves.moves[possible_moves.len-1].y = i;
-        //     i--;
-        // }
-        // if(((board[i*8+x]<0 && c>0) || (board[i*8+x]>0 && c<0)) && i>=0){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = x;
-        //     possible_moves.moves[possible_moves.len-1].y = i;
-        // }
-        // i = y+1;
-        // while(board[i*8+x]==0 && i<=7){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = x;
-        //     possible_moves.moves[possible_moves.len-1].y = i;
-        //     i++;
-        // }
-        // if(((board[i*8+x]<0 && c>0) || (board[i*8+x]>0 && c<0)) && i<=7){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = x;
-        //     possible_moves.moves[possible_moves.len-1].y = i;
-        // }
-
-        // i = x-1;
-        // while(board[y*8+i]==0 && i>=0){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = i;
-        //     possible_moves.moves[possible_moves.len-1].y = y;
-        //     i--;
-        // }
-        // if(((board[y*8+i]<0 && c>0) || (board[y*8+i]>0 && c<0)) && i>=0){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = i;
-        //     possible_moves.moves[possible_moves.len-1].y = y;
-        // }
-        // i = x+1;
-        // while(board[y*8+i]==0 && i<=7){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = i;
-        //     possible_moves.moves[possible_moves.len-1].y = y;
-        //     i++;
-        // }
-        // if(((board[y*8+i]<0 && c>0) || (board[y*8+i]>0 && c<0)) && i<=7){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = i;
-        //     possible_moves.moves[possible_moves.len-1].y = y;
-        // }
-
         r=1, l=1, u=1, d=1;
         for(int i=1;i<8;i++){
             if((y+i)<8 && d){
@@ -459,65 +416,8 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
         }
     }
 
-    // bishop movement
+    // bishop movement and queen
     if(abs(piece)==4 || abs(piece)==5){
-        // int i = y-1;
-        // int j = x-1;
-        // while(board[i*8+j]==0 && i>=0 && j>=0){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = j;
-        //     possible_moves.moves[possible_moves.len-1].y = i;
-        //     i--;
-        //     j--;
-        // }
-        // if(((board[i*8+j]<0 && c>0) || (board[i*8+j]>0 && c<0)) && i>=0 && j>=0){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = j;
-        //     possible_moves.moves[possible_moves.len-1].y = i;
-        // }
-        // i = y+1;
-        // j = x+1;
-        // while(board[i*8+j]==0 && i<=7 && j<=7){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = j;
-        //     possible_moves.moves[possible_moves.len-1].y = i;
-        //     i++;
-        //     j++;
-        // }
-        // if(((board[i*8+j]<0 && c>0) || (board[i*8+j]>0 && c<0)) && i<=7 && j<=7){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = j;
-        //     possible_moves.moves[possible_moves.len-1].y = i;
-        // }
-        // i = y+1;
-        // j = x-1;
-        // while(board[i*8+j]==0 && i<=7 && j>=0){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = j;
-        //     possible_moves.moves[possible_moves.len-1].y = i;
-        //     i++;
-        //     j--;
-        // }
-        // if(((board[i*8+j]<0 && c>0) || (board[i*8+j]>0 && c<0)) && i<=7 && j>=0){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = j;
-        //     possible_moves.moves[possible_moves.len-1].y = i;
-        // }
-        // i = y-1;
-        // j = x+1;
-        // while(board[i*8+j]==0 && i>=0 && j<=7){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = j;
-        //     possible_moves.moves[possible_moves.len-1].y = i;
-        //     i--;
-        //     j++;
-        // }
-        // if(((board[i*8+j]<0 && c>0) || (board[i*8+j]>0 && c<0)) && i>=0 && j<=7){
-        //     possible_moves.len++;
-        //     possible_moves.moves[possible_moves.len-1].x = j;
-        //     possible_moves.moves[possible_moves.len-1].y = i;
-        // }
-
         r=1, l=1, u=1, d=1;
         for(int i=1;i<8;i++){
             if((y+i)<8 && (x+i)<8 && d){
@@ -604,116 +504,6 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
 
     }
 
-    // queen movement
-    // if(abs(piece)==5){
-    //     int i = y-1;
-    //     while(board[i*8+x]==0 && i>=0){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = x;
-    //         possible_moves.moves[possible_moves.len-1].y = i;
-    //         i--;
-    //     }
-    //     if(((board[i*8+x]<0 && c>0) || (board[i*8+x]>0 && c<0)) && i>=0){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = x;
-    //         possible_moves.moves[possible_moves.len-1].y = i;
-    //     }
-    //     i = y+1;
-    //     while(board[i*8+x]==0 && i<=7){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = x;
-    //         possible_moves.moves[possible_moves.len-1].y = i;
-    //         i++;
-    //     }
-    //     if(((board[i*8+x]<0 && c>0) || (board[i*8+x]>0 && c<0)) && i<=7){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = x;
-    //         possible_moves.moves[possible_moves.len-1].y = i;
-    //     }
-
-    //     i = x-1;
-    //     while(board[y*8+i]==0 && i>=0){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = i;
-    //         possible_moves.moves[possible_moves.len-1].y = y;
-    //         i--;
-    //     }
-    //     if(((board[y*8+i]<0 && c>0) || (board[y*8+i]>0 && c<0)) && i>=0){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = i;
-    //         possible_moves.moves[possible_moves.len-1].y = y;
-    //     }
-    //     i = x+1;
-    //     while(board[y*8+i]==0 && i<=7){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = i;
-    //         possible_moves.moves[possible_moves.len-1].y = y;
-    //         i++;
-    //     }
-    //     if(((board[y*8+i]<0 && c>0) || (board[y*8+i]>0 && c<0)) && i<=7){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = i;
-    //         possible_moves.moves[possible_moves.len-1].y = y;
-    //     }
-
-    //     i = y-1;
-    //     int j = x-1;
-    //     while(board[i*8+j]==0 && i>=0 && j>=0){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = j;
-    //         possible_moves.moves[possible_moves.len-1].y = i;
-    //         i--;
-    //         j--;
-    //     }
-    //     if(((board[i*8+j]<0 && c>0) || (board[i*8+j]>0 && c<0)) && i>=0 && j>=0){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = j;
-    //         possible_moves.moves[possible_moves.len-1].y = i;
-    //     }
-    //     i = y+1;
-    //     j = x+1;
-    //     while(board[i*8+j]==0 && i<=7 && j<=7){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = j;
-    //         possible_moves.moves[possible_moves.len-1].y = i;
-    //         i++;
-    //         j++;
-    //     }
-    //     if(((board[i*8+j]<0 && c>0) || (board[i*8+j]>0 && c<0)) && i<=7 && j<=7){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = j;
-    //         possible_moves.moves[possible_moves.len-1].y = i;
-    //     }
-    //     i = y+1;
-    //     j = x-1;
-    //     while(board[i*8+j]==0 && i<=7 && j>=0){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = j;
-    //         possible_moves.moves[possible_moves.len-1].y = i;
-    //         i++;
-    //         j--;
-    //     }
-    //     if(((board[i*8+j]<0 && c>0) || (board[i*8+j]>0 && c<0)) && i<=7 && j>=0){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = j;
-    //         possible_moves.moves[possible_moves.len-1].y = i;
-    //     }
-    //     i = y-1;
-    //     j = x+1;
-    //     while(board[i*8+j]==0 && i>=0 && j<=7){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = j;
-    //         possible_moves.moves[possible_moves.len-1].y = i;
-    //         i--;
-    //         j++;
-    //     }
-    //     if(((board[i*8+j]<0 && c>0) || (board[i*8+j]>0 && c<0)) && i>=0 && j<=7){
-    //         possible_moves.len++;
-    //         possible_moves.moves[possible_moves.len-1].x = j;
-    //         possible_moves.moves[possible_moves.len-1].y = i;
-    //     }
-    // }
-
     // king movement
     if(abs(piece)==6){
         for(int i=-1;i<=1;i++){
@@ -723,10 +513,17 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
                 }
                 else{
                     if((board[(y+i)*8+(x+j)]==0 || (board[(y+i)*8+(x+j)]<0 && c>0) || (board[(y+i)*8+(x+j)]>0 && c<0))
-                    && (y+i)<8 && (y+i)>=0 && (x+j)>=0 && (x+j)<8 && CHESS_IsCheck((y+i)*8+(x+j), c)!=c){
-                        possible_moves.len++;
-                        possible_moves.moves[possible_moves.len-1].x = x+j;
-                        possible_moves.moves[possible_moves.len-1].y = y+i;
+                    && (y+i)<8 && (y+i)>=0 && (x+j)>=0 && (x+j)<8){
+                        previous_piece = board[(y+i)*8+(x+j)];
+                        board[(y+i)*8+(x+j)] = piece;
+                        board[y*8+x] = 0;
+                        if(CHESS_IsCheck((y+i)*8+(x+j), c)!=c){
+                            possible_moves.len++;
+                            possible_moves.moves[possible_moves.len-1].x = x+j;
+                            possible_moves.moves[possible_moves.len-1].y = y+i;
+                        }
+                        board[(y+i)*8+(x+j)] = previous_piece;
+                        board[y*8+x] = piece;
                     }
                 }
             }
@@ -744,14 +541,30 @@ void CHESS_MovePiece()
     CHESS_Moves possible_moves = CHESS_GenerateMovesForPiece(selected_piece);
 	buttons = SDL_GetMouseState(&_mouse_x, &_mouse_y);
 	if(buttons & SDL_BUTTON(SDL_BUTTON_LEFT)){
+        // select promotion piece
+        if(_mouse_x>8*75){
+            for(int i=0;i<4;i++){
+                if(_mouse_x>SCREEN_WIDTH-75 && _mouse_y>i*75 && _mouse_y<(i+1)*75){
+                    promotion_piece = i+2;
+                }
+            }
+        }
+
+        // move piece
         mouse_x = _mouse_x/75;
         mouse_y = _mouse_y/75;
+        if(mouse_x>7){mouse_x=0; mouse_y=0;}
         if(selected_piece>=0){
             int piece = board[selected_piece];
             for(int i=0;i<possible_moves.len;i++){
                 if(mouse_x==possible_moves.moves[i].x && mouse_y==possible_moves.moves[i].y){
                     board[possible_moves.moves[i].y*8+possible_moves.moves[i].x] = piece;
                     board[selected_piece] = 0;
+
+                    int c = piece/abs(piece);
+                    if(abs(piece)==1 && ((c>0 && possible_moves.moves[i].y==0) || (c<0 && possible_moves.moves[i].y==7))){
+                        board[possible_moves.moves[i].y*8+possible_moves.moves[i].x] = promotion_piece*c;
+                    }
 
                     turn_count++;
                     if(on_turn>0){
