@@ -1,7 +1,15 @@
 #ifndef CHESS_H
 #define CHESS_H
 
-#include"main.h"
+typedef struct{
+    int x;
+    int y;
+}CHESS_Move;
+
+typedef struct{
+    CHESS_Move* moves;
+    int len;
+}CHESS_Moves;
 
 #define CHESS_Pawn 1
 #define CHESS_Rook 2
@@ -9,6 +17,14 @@
 #define CHESS_Bishop 4
 #define CHESS_Queen 5
 #define CHESS_King 6
+
+extern int board[64];
+
+#include"main.h"
+
+extern SDL_Rect CHESS_WhitePiece[7];
+extern SDL_Rect CHESS_BlackPiece[7];
+extern SDL_Rect CHESS_MoveIcon;
 
 /*
     0 -> NULL
@@ -35,21 +51,6 @@
     56 57 58 59 60 61 62 63
 
 */
-
-typedef struct{
-    int x;
-    int y;
-}CHESS_Move;
-
-typedef struct{
-    CHESS_Move* moves;
-    int len;
-}CHESS_Moves;
-
-extern SDL_Rect CHESS_WhitePiece[7];
-extern SDL_Rect CHESS_BlackPiece[7];
-extern SDL_Rect CHESS_MoveIcon;
-extern int board[64];
 
 void CHESS_LoadPositionFromFen(char* fen);
 void CHESS_LoadPieces();

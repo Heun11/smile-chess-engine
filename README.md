@@ -3,6 +3,7 @@
 - without lib files
 - todo:
     1. Chess:
+        - fix and improve move log
         - add castle
         - add en-passant
     2. Engine

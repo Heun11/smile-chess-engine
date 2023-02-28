@@ -10,6 +10,11 @@ int on_turn = 1;
 int turn_count = 0;
 int is_check = 0;
 int promotion_piece = 5;
+int win = 0;
+int w_can_castle_k = 0;
+int w_can_castle_q = 0;
+int b_can_castle_k = 0;
+int b_can_castle_q = 0;
 
 int CHESS_GetPieceFromFenSymbol(char symbol)
 {
@@ -72,6 +77,18 @@ void CHESS_LoadPositionFromFen(char* fen)
         }
         if(symbol=='b'){
             on_turn = -1;
+        }
+        if(symbol=='K'){
+            w_can_castle_k = 1;
+        }
+        if(symbol=='Q'){
+            w_can_castle_q = 1;
+        }
+        if(symbol=='k'){
+            b_can_castle_k = 1;
+        }
+        if(symbol=='q'){
+            b_can_castle_q = 1;
         }
     }
 }
@@ -238,6 +255,21 @@ int CHESS_IsCheck(int i, int c)
         // printf("%d\n", (y-c)*8+(x-1));
         return c;
     }
+
+    // king check
+    for(int i=-1;i<=1;i++){
+        for(int j=-1;j<=1;j++){
+            if(i==0 && j==0){
+                continue;
+            }
+            else{
+                if(board[(y+i)*8+(x+j)]==6*(-1*c) && (y+i)<8 && (y+i)>=0 && (x+j)>=0 && (x+j)<8){
+                    return c;
+                }
+            }
+        }
+    }
+
 
     return 0;
 }
@@ -535,64 +567,82 @@ CHESS_Moves CHESS_GenerateMovesForPiece(int i)
 
 void CHESS_MovePiece()
 {
-    int _mouse_x, _mouse_y, buttons;
-    int mouse_x = -1;
-    int mouse_y = -1;
-    CHESS_Moves possible_moves = CHESS_GenerateMovesForPiece(selected_piece);
-	buttons = SDL_GetMouseState(&_mouse_x, &_mouse_y);
-	if(buttons & SDL_BUTTON(SDL_BUTTON_LEFT)){
-        // select promotion piece
-        if(_mouse_x>8*75){
-            for(int i=0;i<4;i++){
-                if(_mouse_x>SCREEN_WIDTH-75 && _mouse_y>i*75 && _mouse_y<(i+1)*75){
-                    promotion_piece = i+2;
-                }
-            }
-        }
-
-        // move piece
-        mouse_x = _mouse_x/75;
-        mouse_y = _mouse_y/75;
-        if(mouse_x>7){mouse_x=0; mouse_y=0;}
-        if(selected_piece>=0){
-            int piece = board[selected_piece];
-            for(int i=0;i<possible_moves.len;i++){
-                if(mouse_x==possible_moves.moves[i].x && mouse_y==possible_moves.moves[i].y){
-                    board[possible_moves.moves[i].y*8+possible_moves.moves[i].x] = piece;
-                    board[selected_piece] = 0;
-
-                    int c = piece/abs(piece);
-                    if(abs(piece)==1 && ((c>0 && possible_moves.moves[i].y==0) || (c<0 && possible_moves.moves[i].y==7))){
-                        board[possible_moves.moves[i].y*8+possible_moves.moves[i].x] = promotion_piece*c;
-                    }
-
-                    turn_count++;
-                    if(on_turn>0){
-                        on_turn = -1;
-                    }
-                    else{
-                        on_turn = 1;
+    if(win==0){
+        int _mouse_x, _mouse_y, buttons;
+        int mouse_x = -1;
+        int mouse_y = -1;
+        CHESS_Moves possible_moves = CHESS_GenerateMovesForPiece(selected_piece);
+        buttons = SDL_GetMouseState(&_mouse_x, &_mouse_y);
+        if(buttons & SDL_BUTTON(SDL_BUTTON_LEFT)){
+            // select promotion piece
+            if(_mouse_x>8*75){
+                for(int i=0;i<4;i++){
+                    if(_mouse_x>SCREEN_WIDTH-75 && _mouse_y>i*75 && _mouse_y<(i+1)*75){
+                        promotion_piece = i+2;
                     }
                 }
             }
-        }
-        if(board[mouse_y*8+mouse_x]!=0){
-            selected_piece = mouse_y*8+mouse_x;
-            int c = board[selected_piece]/abs(board[selected_piece]);
-            if(c!=on_turn){
+
+            // move piece
+            mouse_x = _mouse_x/75;
+            mouse_y = _mouse_y/75;
+            if(mouse_x>7){mouse_x=0; mouse_y=0;}
+            if(selected_piece>=0){
+                int piece = board[selected_piece];
+                for(int i=0;i<possible_moves.len;i++){
+                    if(mouse_x==possible_moves.moves[i].x && mouse_y==possible_moves.moves[i].y){
+                        int previous_piece = board[possible_moves.moves[i].y*8+possible_moves.moves[i].x];
+                        board[possible_moves.moves[i].y*8+possible_moves.moves[i].x] = piece;
+                        board[selected_piece] = 0;
+
+                        int c = piece/abs(piece);
+                        if(abs(piece)==1 && ((c>0 && possible_moves.moves[i].y==0) || (c<0 && possible_moves.moves[i].y==7))){
+                            board[possible_moves.moves[i].y*8+possible_moves.moves[i].x] = promotion_piece*c;
+                        }
+
+                        turn_count++;
+                        if(on_turn>0){
+                            on_turn = -1;
+                        }
+                        else{
+                            on_turn = 1;
+                        }
+
+                        // log move
+                        char* move = MOVE_LOG_IdentifyMove(selected_piece, possible_moves.moves[i].y*8+possible_moves.moves[i].x, previous_piece);
+                        MOVE_LOG_AddMove(&MoveLog, move);
+                        printf("%s\n", MoveLog.log_str);
+                        free(move);
+                    }
+                }
+            }
+            if(board[mouse_y*8+mouse_x]!=0){
+                selected_piece = mouse_y*8+mouse_x;
+                int c = board[selected_piece]/abs(board[selected_piece]);
+                if(c!=on_turn){
+                    selected_piece = -1;
+                }
+            }
+            else{
                 selected_piece = -1;
             }
         }
+        if(possible_moves.len>0){
+            for(int i=0;i<possible_moves.len;i++){
+                SDL_SetRenderDrawColor(rend, 224, 54, 54, 100);
+                SDL_RenderFillRect(rend, &(SDL_Rect){possible_moves.moves[i].x*75,possible_moves.moves[i].y*75,75,75});
+            }
+        }
+        free(possible_moves.moves);
+    }
+    else{
+        char win_str[11];
+        if(win>0){
+            strncpy(win_str, "White Won!", 11);
+        }
         else{
-            selected_piece = -1;
+            strncpy(win_str, "Black Won!", 11);
         }
+		TOOLS_SDL_Text_RenderCopy(rend, font, win_str, SCREEN_WIDTH-150, SCREEN_HEIGHT-180, 150, 80, (SDL_Color){52, 97, 235});
     }
-    if(possible_moves.len>0){
-        for(int i=0;i<possible_moves.len;i++){
-            SDL_SetRenderDrawColor(rend, 224, 54, 54, 100);
-            SDL_RenderFillRect(rend, &(SDL_Rect){possible_moves.moves[i].x*75,possible_moves.moves[i].y*75,75,75});
-            // TOOLS_Render_Image_From_Texture(rend, tex, &CHESS_MoveIcon, possible_moves.moves[i].x*75,possible_moves.moves[i].y*75, 75, 75);
-        }
-    }
-    free(possible_moves.moves);
 }

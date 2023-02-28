@@ -9,6 +9,7 @@ TTF_Font* font;
 int SCREEN_WIDTH;
 int SCREEN_HEIGHT;
 float elapsed;
+MOVE_LOG_Log MoveLog;
 
 int main(int argc, char** argv)
 {
@@ -52,6 +53,8 @@ int main(int argc, char** argv)
 	SDL_FreeSurface(tileset);
 
 	CHESS_LoadPieces();
+
+	MOVE_LOG_LogInit(&MoveLog);
 
 	int run = 1;
 	while(run){
